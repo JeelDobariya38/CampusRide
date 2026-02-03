@@ -1,22 +1,49 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
+  const [formData, setFormData] = useState({
+    fullname: "",
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-12">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-        
         <div className="mb-8 text-center">
-          <div className="flex justify-center text-4xl">
-            📝
-          </div>
+          <div className="flex justify-center text-4xl">📝</div>
           <h2 className="mt-3 text-2xl font-bold text-teal-700">CampusRide</h2>
           <h3 className="mt-1 text-xl font-bold text-slate-800">Create Account</h3>
-          <p className="mt-1 text-sm text-slate-500">
-            Join the community to save money
-          </p>
+          <p className="mt-1 text-sm text-slate-500">Join the community to save money</p>
         </div>
 
-        <form className="space-y-5">
+        {error && <div className="mb-4 text-center text-sm text-red-600">{error}</div>}
+
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="fullname" className="mb-1 block text-sm font-semibold text-teal-900">
               Full Name
@@ -27,6 +54,8 @@ export default function Register() {
               type="text"
               required
               placeholder="John Doe"
+              value={formData.fullname}
+              onChange={handleChange}
               className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600 sm:text-sm"
             />
           </div>
@@ -41,6 +70,8 @@ export default function Register() {
               type="email"
               required
               placeholder="your.username@adit.ac.in"
+              value={formData.email}
+              onChange={handleChange}
               className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600 sm:text-sm"
             />
           </div>
@@ -55,6 +86,8 @@ export default function Register() {
               type="password"
               required
               placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
               className="block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600 sm:text-sm"
             />
           </div>
